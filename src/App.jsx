@@ -1,67 +1,40 @@
-import React, { createContext, Component } from 'react'
-import './App.css'
+import React, { useContext, useState, Component, createContext } from 'react'
 
-// 创建 context
-const BatteryContext = createContext()
-const OnlineContext = createContext()
+const CountContext = createContext()
 
-function Leaf() {
-  return (
-    <BatteryContext.Consumer>
-      {battery => (
-        <OnlineContext.Consumer>
-          {online => (
-            <h1>
-              battery: {battery}, online: {online.toString()}
-            </h1>
-          )}
-        </OnlineContext.Consumer>
-      )}
-    </BatteryContext.Consumer>
-  )
-}
-
-// 中间组件 middle
-function Middle() {
-  return <Leaf />
-}
-
-class App extends Component {
-  state = {
-    online: false,
-    battery: 60
+class Foo extends Component {
+  render() {
+    return <CountContext.Consumer>{count => <h1>{count}</h1>}</CountContext.Consumer>
   }
+}
+
+class Bar extends Component {
+  static contextType = CountContext
 
   render() {
-    const { battery, online } = this.state
-
-    return (
-      <BatteryContext.Provider value={battery}>
-        <OnlineContext.Provider value={online}>
-          <button
-            onClick={() =>
-              this.setState({
-                online: !online
-              })
-            }
-          >
-            切换online
-          </button>
-          <button
-            type='button'
-            onClick={() =>
-              this.setState({
-                battery: battery - 1
-              })
-            }
-          >
-            点击
-          </button>
-          <Middle />
-        </OnlineContext.Provider>
-      </BatteryContext.Provider>
-    )
+    return <div>{this.context}</div>
   }
 }
 
-export default App
+function Counter() {
+  const count = useContext(CountContext)
+
+  return <div>count: {count}</div>
+}
+
+export default function App() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>click {count}</button>
+      <CountContext.Provider value={count}>
+        <Foo />
+        <hr />
+        <Bar />
+        <hr />
+        <Counter />
+      </CountContext.Provider>
+    </div>
+  )
+}
