@@ -459,6 +459,192 @@ export default function App() {
 
 useEffect 的第二个参数，可以指定传入的变量发生变化时再运行副作用
 
-
 #### Context Hook
 
+注意事项：依旧还是与 context 一致，建议在一个组件之中最多只有一个 context
+
+使用例子：
+
+```
+import React, { useContext, useState, Component, createContext } from 'react'
+
+const CountContext = createContext()
+
+class Foo extends Component {
+  render() {
+    return <CountContext.Consumer>{count => <h1>{count}</h1>}</CountContext.Consumer>
+  }
+}
+
+class Bar extends Component {
+  static contextType = CountContext
+
+  render() {
+    return <div>{this.context}</div>
+  }
+}
+
+function Counter() {
+  const count = useContext(CountContext)
+
+  return <div>count: {count}</div>
+}
+
+export default function App() {
+  const [count, setCount] = useState(0)
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>click {count}</button>
+      <CountContext.Provider value={count}>
+        <Foo />
+        <hr />
+        <Bar />
+        <hr />
+        <Counter />
+      </CountContext.Provider>
+    </div>
+  )
+}
+```
+
+#### Memo & Callback Hook
+
+meme 与 useMemo 的区别：
+
+- memo：该函数针对的是 一个组件的渲染是否重复执行
+- useMemo：定义一段函数逻辑 是否重复执行
+
+例子：
+
+```
+import React, { useState, useMemo } from 'react'
+
+function Counter({ count }) {
+  return (
+    <div>
+      <button>counter: {count}</button>
+    </div>
+  )
+}
+
+export default function App() {
+  const [count, setCount] = useState(0)
+
+  const doubleCount = useMemo(() => {
+    return count * 2
+  }, [count])
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>click ({count})</button>
+
+      <Counter count={doubleCount} />
+    </div>
+  )
+}
+
+```
+
+#### useCallback
+
+其实就是 useMemo 的简写
+
+`useMemo(() => fn) 相当于 useCallback(fn)`
+
+例子：
+
+```
+import React, { useState, useMemo, memo, useCallback } from 'react'
+
+const Counter = memo(function Counter(props) {
+  console.log('render counter')
+
+  return (
+    <div>
+      <button onClick={props.onClick}>counter: {props.count}</button>
+    </div>
+  )
+})
+
+// function Counter(props) {
+//   console.log('render counter')
+
+//   return (
+//     <div>
+//       <button>counter: {props.count}</button>
+//     </div>
+//   )
+// }
+
+export default function App() {
+  const [count, setCount] = useState(0)
+  const [clickCount, setClickCount] = useState(0)
+
+  const doubleCount = useMemo(() => {
+    return count * 2
+  }, [count === 3])
+
+  // 会导致 counter 组件重新渲染
+  // const onClick = () => {
+  //   console.log('click')
+  // }
+
+  // 解决方案1：useMemo
+  // const onClick = useMemo(
+  //   () => () => {
+  //     console.log('click')
+  //   },
+  //   []
+  // )
+
+  // 解决方案2：useCallback
+  const onClick = useCallback(() => {
+    console.log('click')
+    setClickCount(clickCount => clickCount + 1)
+  }, [])
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>click ({count})</button>
+
+      <Counter count={doubleCount} onClick={onClick} />
+    </div>
+  )
+}
+```
+
+#### Ref Hooks
+
+获取子组件或者 DOM 节点的句柄
+
+例子：
+
+```
+const counterRef = useRef()
+
+<Counter ref={counterRef} count={doubleCount} onClick={onClick} />
+
+counterRef.current.speak()
+
+```
+
+渲染周期之间共享数据的存储
+
+例子：
+
+```
+const timer = useRef()
+
+
+useEffect(() => {
+  timer.current = setInterval(() => setCount(count => count + 1), 1000)
+}, [])
+
+useEffect(() => {
+  if (count >= 10) {
+    clearInterval(timer.current)
+  }
+})
+
+```
