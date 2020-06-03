@@ -1,7 +1,23 @@
 import React, { useState, useCallback, useRef, useEffect, memo } from 'react'
+import { createToggle, createRemove, createAdd, createSet } from './actions'
+import { reducer } from './reducers'
 
-let idSeq = 1
+let idSeq = Date.now()
 const LS_KEY = 'todos'
+
+function bindActionCreators(actionCreators, dispatch) {
+  const ret = {}
+
+  for (const key in actionCreators) {
+    ret[key] = function (...args) {
+      const actionCreator = actionCreators[key]
+      const action = actionCreator(...args)
+      dispatch(action)
+    }
+  }
+
+  return ret
+}
 
 const Control = memo(function (props) {
   const { addTodo } = props
@@ -13,7 +29,8 @@ const Control = memo(function (props) {
 
     if (input.length === 0) return
 
-    addTodo({ id: idSeq++, text: input, complete: false })
+    const newTodo = { id: idSeq++, text: input, complete: false }
+    addTodo(newTodo)
     inputRef.current.value = ''
   }
 
@@ -38,7 +55,8 @@ const TodoItem = memo(function (props) {
   const onChange = () => {
     toggleTodo(id)
   }
-  const onRemove = () => {
+  const onRemove = e => {
+    e.stopPropagation()
     removeTodo(id)
   }
 
@@ -46,7 +64,7 @@ const TodoItem = memo(function (props) {
     <li className='todo-item' onClick={onChange}>
       <input readOnly checked={complete} type='checkbox' />
       <label className={complete ? 'completed' : ''}>{text}</label>
-      <button type='button' onClick={onRemove}>
+      <button className='button' type='button' onClick={onRemove}>
         &#xd7;
       </button>
     </li>
@@ -54,7 +72,7 @@ const TodoItem = memo(function (props) {
 })
 
 const Todos = memo(function (props) {
-  const { todos, toggleTodo, removeTodo } = props
+  const { todos, removeTodo, toggleTodo } = props
   return (
     <div>
       <ul>
@@ -66,23 +84,35 @@ const Todos = memo(function (props) {
   )
 })
 
-export default memo(function () {
+function TodoList() {
   const [todos, setTodos] = useState([])
-  const addTodo = useCallback(todo => {
-    setTodos(todos => [...todos, todo])
-  }, [])
-  const removeTodo = useCallback(id => {
-    setTodos(todos => todos.filter(todo => todo.id !== id))
-  }, [])
-  const toggleTodo = useCallback(id => {
-    setTodos(todos =>
-      todos.map(todo => (todo.id === id ? { ...todo, complete: !todo.complete } : todo))
-    )
-  }, [])
+  const [incrementCount, setIncrementCount] = useState(0)
+
+  // 使用 useCallback 缓存函数 避免每次重新生成该函数
+  const dispatch = useCallback(
+    action => {
+      const state = {
+        todos,
+        incrementCount
+      }
+      const setters = {
+        todos: setTodos,
+        incrementCount: setIncrementCount
+      }
+
+      const newState = reducer(state, action)
+
+      for (const key in newState) {
+        setters[key](newState[key])
+      }
+    },
+    [todos, incrementCount]
+  )
 
   useEffect(() => {
     const todosFromStorage = JSON.parse(localStorage.getItem(LS_KEY)) || []
-    setTodos(todosFromStorage)
+    dispatch(createSet(todosFromStorage))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -91,8 +121,26 @@ export default memo(function () {
 
   return (
     <div className='todo-list'>
-      <Control addTodo={addTodo} />
-      <Todos todos={todos} removeTodo={removeTodo} toggleTodo={toggleTodo} />
+      <Control
+        {...bindActionCreators(
+          {
+            addTodo: createAdd
+          },
+          dispatch
+        )}
+      />
+      <Todos
+        todos={todos}
+        {...bindActionCreators(
+          {
+            removeTodo: createRemove,
+            toggleTodo: createToggle
+          },
+          dispatch
+        )}
+      />
     </div>
   )
-})
+}
+
+export default TodoList

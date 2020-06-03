@@ -55,3 +55,15 @@
   text-decoration: line-through;
   color: #999999;
 }
+
+.button {
+  border: 0 none;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 24px;
+  font-weight: bold;
+  background-color: transparent;
+  cursor: pointer;
+  outline: none;
+}

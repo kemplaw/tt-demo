@@ -842,3 +842,8 @@ function Counter() {
 1. 单一数据源
 2. 状态不可变
 3. 纯函数修改状态（没有副作用）
+
+
+#### Reducer
+
+接收当前的数据和action，返回通过 action 更新之后的数据
