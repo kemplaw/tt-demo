@@ -876,5 +876,15 @@ notification API 消息推送
 - 依赖用户授权
 - 适合在 service worker 中推送
 
+#### Service Worker
 
-#### Service Worker 
+无法访问：
+
+1. DOM 对象
+2. 类似 window localstorage 的对象也无法访问
+
+
+
+#### cache API
+
+实现 pwa 的离线存储功能
