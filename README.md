@@ -648,3 +648,197 @@ useEffect(() => {
 })
 
 ```
+
+#### 自定义 Hooks
+
+可以将一段独立的 hooks 逻辑封装到一个 useHooks 函数之中，从而达到复用逻辑的效果
+
+一般使用套路：
+
+1. 封装 hooks 逻辑
+2. 返回 jsx
+
+示例代码：
+
+```
+import React, { useState, PureComponent, useRef, useEffect, useCallback } from 'react'
+
+// class Counter extends PureComponent {
+//   render() {
+//     const { count } = this.props
+
+//     return <h1>{count}</h1>
+//   }
+// }
+
+function useCounter(count) {
+  const size = useSize()
+
+  return (
+    <h1>
+      {count} <div>size: {JSON.stringify(size)}</div>
+    </h1>
+  )
+}
+
+// 自定义 hooks
+function useCount(defaultCount = 0) {
+  const [count, setCount] = useState(defaultCount)
+  const it = useRef()
+
+  useEffect(() => {
+    it.current = setInterval(() => setCount(count => count + 1), 1000)
+  }, [])
+
+  useEffect(() => {
+    if (count >= 10) {
+      clearInterval(it.current)
+    }
+  })
+
+  return [count, setCount]
+}
+
+function useSize() {
+  const [size, setSize] = useState({
+    width: document.documentElement.clientWidth,
+    height: document.documentElement.clientHeight
+  })
+
+  // 此处使用 useCallback 并给到一个空的依赖列表，避免每次创建新的 onResize 函数
+  const onResize = useCallback(() => {
+    setSize({
+      width: document.documentElement.clientWidth,
+      height: document.documentElement.clientHeight
+    })
+  }, [])
+
+  // 由于依赖了 缓存之后的 onResize 函数， effect 在每个组件之中只会调用一次
+  // 如果 onResize 每次都是一个新函数，则 effect 会被调用 多次，这是一种性能损耗
+  useEffect(() => {
+    console.log('init effect')
+
+    window.addEventListener('resize', onResize, false)
+
+    return () => window.removeEventListener('resize', onResize, false)
+  }, [onResize])
+
+  return size
+}
+
+export default function App() {
+  const [count, setCount] = useCount(1)
+  const Counter = useCounter(count)
+  const size = useSize()
+
+  return (
+    <div>
+      <button onClick={() => setCount(count + 1)}>click ({count})</button>
+      {Counter}
+
+      <div>size: {JSON.stringify(size)}</div>
+    </div>
+  )
+}
+
+```
+
+#### [Hooks 使用法则](https://react.docschina.org/docs/hooks-rules.html)
+
+只在最顶层使用 Hook：
+
+- 原因：
+  - 如果在条件语句或者循环语句中使用 hook ，则会破坏在组件的**不同渲染周期中 hook 的调用数量以及顺序**，进而导致变量错乱等 bug
+
+只在 React 函数中调用 hook
+
+#### [Hooks 的常见问题](https://react.docschina.org/docs/hooks-faq.html)
+
+对传统 React 编程的影响
+
+- 生命周期函数如何映射到 Hooks
+  ![生命周期]('./src/assets/images/react_lifycycle.png')
+
+  - shouldComponentUpdate 在函数组件中的实现
+
+  ```
+  class Counter extends Component {
+    state = {
+      hide: false
+    }
+
+    shouldComponentUpdate(props, state) {
+      if (props.count > 10) {
+        return {
+          hide: true
+        }
+      }
+    }
+  }
+
+  function Counter() {
+    const [count, setCount] = useState(0)
+    const [hide, setHide] = useState(false)
+
+    if (count > 10) {
+      setHide(false)
+    }
+  }
+  ```
+
+  - componentDidMount 以及 componentDidUpdate 的函数组件实现方式：
+    `useEffect(...)`
+  - 类组件中的错误处理函数，在函数组件中仍无法实现，所以并不能完全取代类组件
+
+- 类实例成员变量如何映射到 Hooks
+
+```
+class App {
+  it = 0
+}
+
+function App() {
+  const it = useRef(0)
+}
+```
+
+- Hooks 中如何获取历史 props 和 state
+
+```
+function Counter() {
+  const [count, setCount] = useState(0)
+  // 使用 useRef 不受函数重渲染影响的特性 保存 count
+  const prevCountRef = useRef()
+
+  useEffect(() => {
+    prevCountRef.current = count
+    console.log('effected')
+  })
+
+  const prevCount = prevCountRef.current
+
+  console.log('get prevCount')
+
+  return (
+    <div>
+      <button onClick={() => setCount(count => count + 1)}>
+        counter: {count}, before: {prevCount}
+      </button>
+    </div>
+  )
+}
+```
+
+- 如何强制更新一个 Hooks 组件
+
+  创建一个不参与实际渲染的 state，然后在需要的时机更新它
+
+### Redux 的概念和意义
+
+状态容器和数据流管理
+
+三大原则：
+
+1. 单一数据源
+2. 状态不可变
+3. 纯函数修改状态（没有副作用）

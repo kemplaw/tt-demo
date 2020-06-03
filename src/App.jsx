@@ -1,90 +1,109 @@
-import React, {
-  useState,
-  useMemo,
-  memo,
-  useCallback,
-  useRef,
-  PureComponent,
-  useEffect
-} from 'react'
+import React, { useState, PureComponent, useRef, useEffect, useCallback } from 'react'
 
-// const Counter = memo(function Counter(props) {
-//   console.log('render counter')
+// class Counter extends PureComponent {
+//   render() {
+//     const { count } = this.props
+
+//     return <h1>{count}</h1>
+//   }
+// }
+
+// function useCounter(count) {
+//   const size = useSize()
 
 //   return (
-//     <div>
-//       <button onClick={props.onClick}>counter: {props.count}</button>
-//     </div>
+//     <h1>
+//       {count} <div>size: {JSON.stringify(size)}</div>
+//     </h1>
 //   )
-// })
+// }
 
-class Counter extends PureComponent {
-  speak() {
-    console.log(`new cuonter: ${this.props.count}`)
-  }
+// // 自定义 hooks
+// function useCount(defaultCount = 0) {
+//   const [count, setCount] = useState(defaultCount)
+//   const it = useRef()
 
-  render() {
-    const { onClick, count } = this.props
+//   useEffect(() => {
+//     it.current = setInterval(() => setCount(count => count + 1), 1000)
+//   }, [])
 
-    return <h1 onClick={onClick}>{count}</h1>
-  }
-}
+//   useEffect(() => {
+//     if (count >= 10) {
+//       clearInterval(it.current)
+//     }
+//   })
 
-// function Counter(props) {
-//   console.log('render counter')
+//   return [count, setCount]
+// }
+
+// function useSize() {
+//   const [size, setSize] = useState({
+//     width: document.documentElement.clientWidth,
+//     height: document.documentElement.clientHeight
+//   })
+
+//   // 此处使用 useCallback 并给到一个空的依赖列表，避免每次创建新的 onResize 函数
+//   const onResize = useCallback(() => {
+//     setSize({
+//       width: document.documentElement.clientWidth,
+//       height: document.documentElement.clientHeight
+//     })
+//   }, [])
+
+//   // 由于依赖了 缓存之后的 onResize 函数， effect 在每个组件之中只会调用一次
+//   // 如果 onResize 每次都是一个新函数，则 effect 会被调用 多次，这是一种性能损耗
+//   useEffect(() => {
+//     console.log('init effect')
+
+//     window.addEventListener('resize', onResize, false)
+
+//     return () => window.removeEventListener('resize', onResize, false)
+//   }, [onResize])
+
+//   return size
+// }
+
+// export default function App() {
+//   const [count, setCount] = useCount(1)
+//   const Counter = useCounter(count)
+//   const size = useSize()
 
 //   return (
 //     <div>
-//       <button>counter: {props.count}</button>
+//       <button onClick={() => setCount(count + 1)}>click ({count})</button>
+//       {Counter}
+
+//       <div>size: {JSON.stringify(size)}</div>
 //     </div>
 //   )
 // }
 
-export default function App() {
+function Counter() {
   const [count, setCount] = useState(0)
-  const [clickCount, setClickCount] = useState(0)
-  const counterRef = useRef()
-  const timer = useRef()
-
-  const doubleCount = useMemo(() => {
-    return count * 2
-  }, [count === 3])
-
-  // 会导致 counter 组件重新渲染
-  // const onClick = () => {
-  //   console.log('click')
-  // }
-
-  // 解决方案1：useMemo
-  // const onClick = useMemo(
-  //   () => () => {
-  //     console.log('click')
-  //   },
-  //   []
-  // )
-
-  // 解决方案2：useCallback
-  const onClick = useCallback(() => {
-    console.log('click')
-    setClickCount(clickCount => clickCount + 1)
-    console.log(counterRef.current.speak())
-  }, [counterRef])
+  const prevCountRef = useRef()
 
   useEffect(() => {
-    timer.current = setInterval(() => setCount(count => count + 1), 1000)
-  }, [])
-
-  useEffect(() => {
-    if (count >= 10) {
-      clearInterval(timer.current)
-    }
+    prevCountRef.current = count
+    console.log('effected')
   })
+
+  const prevCount = prevCountRef.current
+
+  console.log('get prevCount')
 
   return (
     <div>
-      <button onClick={() => setCount(count + 1)}>click ({count})</button>
+      <button onClick={() => setCount(count => count + 1)}>
+        counter: {count}, before: {prevCount}
+      </button>
+    </div>
+  )
+}
 
-      <Counter ref={counterRef} count={doubleCount} onClick={onClick} />
+export default function App() {
+  return (
+    <div>
+      <Counter />
     </div>
   )
 }
