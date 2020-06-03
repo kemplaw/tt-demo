@@ -2,8 +2,11 @@ import React, { useState, useCallback, useRef, useEffect, memo } from 'react'
 import { createToggle, createRemove, createAdd, createSet } from './actions'
 import { reducer } from './reducers'
 
-let idSeq = Date.now()
 const LS_KEY = 'todos'
+const store = {
+  todos: [],
+  incrementCount: 0
+}
 
 function bindActionCreators(actionCreators, dispatch) {
   const ret = {}
@@ -29,8 +32,7 @@ const Control = memo(function (props) {
 
     if (input.length === 0) return
 
-    const newTodo = { id: idSeq++, text: input, complete: false }
-    addTodo(newTodo)
+    addTodo(input)
     inputRef.current.value = ''
   }
 
@@ -62,7 +64,7 @@ const TodoItem = memo(function (props) {
 
   return (
     <li className='todo-item' onClick={onChange}>
-      <input readOnly checked={complete} type='checkbox' />
+      <input readOnly checked={complete || false} type='checkbox' />
       <label className={complete ? 'completed' : ''}>{text}</label>
       <button className='button' type='button' onClick={onRemove}>
         &#xd7;
@@ -88,26 +90,32 @@ function TodoList() {
   const [todos, setTodos] = useState([])
   const [incrementCount, setIncrementCount] = useState(0)
 
+  useEffect(() => {
+    Object.assign(store, {
+      todos,
+      incrementCount
+    })
+  }, [todos, incrementCount])
+
   // 使用 useCallback 缓存函数 避免每次重新生成该函数
-  const dispatch = useCallback(
-    action => {
-      const state = {
-        todos,
-        incrementCount
-      }
-      const setters = {
-        todos: setTodos,
-        incrementCount: setIncrementCount
-      }
+  const dispatch = action => {
+    const setters = {
+      todos: setTodos,
+      incrementCount: setIncrementCount
+    }
 
-      const newState = reducer(state, action)
+    if (typeof action === 'function') {
+      action(dispatch, () => store)
 
-      for (const key in newState) {
-        setters[key](newState[key])
-      }
-    },
-    [todos, incrementCount]
-  )
+      return
+    }
+
+    const newState = reducer(store, action)
+
+    for (const key in newState) {
+      setters[key](newState[key])
+    }
+  }
 
   useEffect(() => {
     const todosFromStorage = JSON.parse(localStorage.getItem(LS_KEY)) || []

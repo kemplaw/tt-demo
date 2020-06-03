@@ -843,7 +843,38 @@ function Counter() {
 2. 状态不可变
 3. 纯函数修改状态（没有副作用）
 
-
 #### Reducer
 
-接收当前的数据和action，返回通过 action 更新之后的数据
+接收当前的数据和 action，返回通过 action 更新之后的数据
+
+#### 异步 Action
+
+### PWA
+
+渐进式网络应用 Progressive Web App
+
+Service Worker 服务工作线程
+
+- 常驻内存运行
+- 代理网络请求
+- 依赖 HTTPS
+
+Promise
+
+- 优化回调地狱
+- async/await
+
+fetch 网络请求
+
+cache API 支持资源的缓存系统
+
+- 缓存资源
+- 依赖 service worker 代理网络请求
+
+notification API 消息推送
+
+- 依赖用户授权
+- 适合在 service worker 中推送
+
+
+#### Service Worker 

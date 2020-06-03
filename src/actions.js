@@ -1,3 +1,5 @@
+let id_seq = Date.now()
+
 export function createSet(payload) {
   return {
     type: 'set',
@@ -5,10 +7,23 @@ export function createSet(payload) {
   }
 }
 
-export function createAdd(payload) {
-  return {
-    type: 'add',
-    payload
+export function createAdd(text) {
+  // 去重逻辑处理
+  return (dispatch, getState) => {
+    setTimeout(() => {
+      const { todos } = getState()
+
+      if (!todos.find(todo => todo.text === text)) {
+        dispatch({
+          type: 'add',
+          payload: {
+            id: id_seq++,
+            text,
+            completed: false
+          }
+        })
+      }
+    }, 3000)
   }
 }
 
