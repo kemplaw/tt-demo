@@ -878,13 +878,49 @@ notification API 消息推送
 
 #### Service Worker
 
-无法访问：
+注意以下内容无法访问：
 
 1. DOM 对象
 2. 类似 window localstorage 的对象也无法访问
 
+生命周期： fetch 会被多次触发, install 和 activate 都只会被触发一次
 
+- install sw 初次被安装之后
+- activate sw 安装并被激活之后
+- fetch sw 每次获取数据时
 
 #### cache API
 
 实现 pwa 的离线存储功能
+
+#### Notification API
+
+一般流程：
+
+1. 确定授权情况 `'default' | 'granted' | 'denied' Notification.permission`
+
+- default
+- granted 同意授权
+- denied 拒绝授权
+
+2. 发起授权请求 `Promise Notification.requestPermission`
+
+3. 使用 Notification 推送消息
+
+- 在 浏览器 上下文中 直接使用 new Notification(...) 推送消息
+- 在 Service Worker 中
+  - 默认的 权限是 denied
+  - 需要先在 浏览器 上下文中获取授权，才能使用
+  - 注意推送消息的 api 为
+  ```
+  Promise self.registration.showNotification(...)
+  ```
+
+#### 如何在项目中开启 PWA
+
+- `npm run build` 会自动启用 pwa
+- (不推荐在开发环境开启) 直接在 index.js 修改 `serviceWorker.unregister()` 为 `serviceWorker.register()`
+
+
+
+#### 项目业务选型
