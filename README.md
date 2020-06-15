@@ -921,12 +921,9 @@ notification API 消息推送
 - `npm run build` 会自动启用 pwa
 - (不推荐在开发环境开启) 直接在 index.js 修改 `serviceWorker.unregister()` 为 `serviceWorker.register()`
 
-
-
 ### 项目业务选型
 
 采用 MPA 的项目架构，分离不同的逻辑到各自的页面之中，减少项目的维护难度
-
 
 ### Mock 数据
 
@@ -943,3 +940,45 @@ notification API 消息推送
 - React 视觉组件拆分
 - redux store 状态涉及
 - redux action/reducer 涉及
+
+### 遇到的问题：
+
+#### 项目构建时
+
+使用 create-react-app 遇到的问题：
+
+- 创建多页面应用时：遇到 canot xxx filter xxx 的问题
+
+问题出自：
+
+```
+new ManifestPlugin({
+  fileName: 'asset-manifest.json',
+  publicPath: paths.publicUrlOrPath,
+  generate: (seed, files, entrypoints) => {
+    const manifestFiles = files.reduce((manifest, file) => {
+      manifest[file.name] = file.path;
+      return manifest;
+    }, seed);
+
+    // 此处的 filter 会报错：cannot xxx  filter xxx
+    const entrypointFiles = entrypoints.main.filter(
+      fileName => !fileName.endsWith('.map')
+    );
+
+    return {
+      files: manifestFiles,
+      entrypoints: entrypointFiles,
+    };
+  },
+}),
+```
+
+解决方案：
+
+```
+new ManifestPlugin({
+  fileName: 'asset-manifest.json',
+  publicPath: isEnvProduction ? paths.servedPath : isEnvDevelopment && '/'
+})
+```
