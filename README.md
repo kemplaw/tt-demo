@@ -367,7 +367,7 @@ export default class App extends Component {
 
 ```
 
-3. 使用 memo 解决
+3. 使用 memo 解决 （注意 memo 只适用于函数组件）
 
 ```
 const MemoFoo = memo(function Foo(props) {
@@ -757,7 +757,7 @@ export default function App() {
 对传统 React 编程的影响
 
 - 生命周期函数如何映射到 Hooks
-  ![生命周期]('./src/assets/images/react_lifycycle.png')
+  ![生命周期]('/src/assets/images/react_lifycycle.png')
 
   - shouldComponentUpdate 在函数组件中的实现
 
