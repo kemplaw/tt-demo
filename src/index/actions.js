@@ -99,3 +99,41 @@ export function exchangeFromTo() {
     dispatch(setTo(from))
   }
 }
+
+/**
+ * @description: 获取城市数据
+ */
+export function fetchCityData() {
+  return (dispatch, getState) => {
+    const { isLoadingCityData } = getState()
+
+    if (isLoadingCityData) return
+
+    const cache = JSON.parse(localStorage.getItem('city_data_cache') || {})
+
+    if (Date.now() < cache.expire) {
+      return dispatch(setCityData(cache.data))
+    }
+
+    dispatch(setIsLoadingCityData(true))
+
+    fetch('/rest/cities?_' + Date.now())
+      .then(res => res.json())
+      .then(cityData => {
+        dispatch(setCityData(cityData))
+        localStorage.setItem(
+          'city_data_cache',
+          JSON.stringify({
+            data: cityData,
+            expire: Date.now() + 60 * 1000
+          })
+        )
+        dispatch(setIsLoadingCityData(false))
+      })
+      .catch(err => {
+        console.log(err)
+        dispatch(setCityData({}))
+        dispatch(setIsLoadingCityData(false))
+      })
+  }
+}
