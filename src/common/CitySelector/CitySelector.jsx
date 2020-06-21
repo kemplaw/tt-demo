@@ -2,61 +2,8 @@ import React, { useState, useMemo, useEffect, memo } from 'react'
 import PropTypes from 'prop-types'
 import classnames from 'classnames'
 import './CitySelector.css'
-import ArrowBack from './Icons/ArrowBack'
-
-const CityItem = memo(function ({ name, onSelect }) {
-  return (
-    <li className='city-li' onClick={() => onSelect(name)}>
-      {name}
-    </li>
-  )
-})
-
-CityItem.propTypes = {
-  name: PropTypes.string.isRequired,
-  onSelect: PropTypes.func.isRequired
-}
-
-const CitySelection = memo(function ({ title, cities = [], onSelect }) {
-  return (
-    <ul className='city-ul'>
-      <li className='city-li' key='title'>
-        {title}
-      </li>
-      {cities.map(({ name }) => (
-        <CityItem key={name} name={name} onSelect={onSelect} />
-      ))}
-    </ul>
-  )
-})
-
-CitySelection.propTypes = {
-  title: PropTypes.string.isRequired,
-  cities: PropTypes.array,
-  onSelect: PropTypes.func.isRequired
-}
-
-const CityList = memo(function ({ sections, onSelect }) {
-  return (
-    <div className='city-list'>
-      <div className='city-cate'>
-        {sections.map(section => (
-          <CitySelection
-            key={section.title}
-            title={section.title}
-            cities={section.citys}
-            onSelect={onSelect}
-          />
-        ))}
-      </div>
-    </div>
-  )
-})
-
-CityList.propTypes = {
-  sections: PropTypes.array.isRequired,
-  onSelect: PropTypes.func.isRequired
-}
+import ArrowBack from '../Icons/ArrowBack'
+import CityList from './CityList'
 
 const CitySelector = memo(function ({
   show,
