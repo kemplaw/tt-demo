@@ -6,7 +6,13 @@ import Journey from './Journey'
 import DepartDate from './DepartDate'
 import HighSpeed from './HighSpeed'
 import Submit from './Submit'
-import { showCitySelector, exchangeFromTo, hideCitySelector, fetchCityData } from './actions'
+import {
+  showCitySelector,
+  exchangeFromTo,
+  hideCitySelector,
+  fetchCityData,
+  setSelectedCity
+} from './actions'
 import { bindActionCreators } from 'redux'
 import CitySelector from '../common/CitySelector'
 
@@ -31,7 +37,8 @@ function App({ from, to, dispatch, isCitySelectorVisible, cityData, isLoadingCit
       bindActionCreators(
         {
           onBack: hideCitySelector,
-          fetchCityData
+          fetchCityData,
+          onSelect: setSelectedCity
         },
         dispatch
       ),

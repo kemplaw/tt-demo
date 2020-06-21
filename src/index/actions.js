@@ -66,6 +66,9 @@ export function hideCitySelector() {
   }
 }
 
+/**
+ * @description: 设置选中的城市数据
+ */
 export function setSelectedCity(city) {
   return (dispatch, getState) => {
     const { currentSelectingLeftCity } = getState()
@@ -75,9 +78,14 @@ export function setSelectedCity(city) {
     } else {
       dispatch(setTo(city))
     }
+
+    dispatch(hideCitySelector())
   }
 }
 
+/**
+ * @description: 显示日期选择器
+ */
 export function showDateSelector() {
   return {
     type: ACTION_SET_IS_DATE_SELECTOR_VISIBLE,
@@ -85,6 +93,9 @@ export function showDateSelector() {
   }
 }
 
+/**
+ * @description: 隐藏日期选择器
+ */
 export function hideDateSelector() {
   return {
     type: ACTION_SET_IS_DATE_SELECTOR_VISIBLE,
@@ -92,6 +103,9 @@ export function hideDateSelector() {
   }
 }
 
+/**
+ * @description: 交换始发站与终点站的值
+ */
 export function exchangeFromTo() {
   return (dispatch, getState) => {
     const { from, to } = getState()
@@ -109,7 +123,7 @@ export function fetchCityData() {
 
     if (isLoadingCityData) return
 
-    const cache = JSON.parse(localStorage.getItem('city_data_cache') || {})
+    const cache = JSON.parse(localStorage.getItem('city_data_cache') || '{}')
 
     if (Date.now() < cache.expire) {
       return dispatch(setCityData(cache.data))
@@ -117,9 +131,9 @@ export function fetchCityData() {
 
     dispatch(setIsLoadingCityData(true))
 
-    fetch('/rest/cities?_' + Date.now())
+    fetch('/api/city/getCityData?_=' + Date.now())
       .then(res => res.json())
-      .then(cityData => {
+      .then(({ data: cityData }) => {
         dispatch(setCityData(cityData))
         localStorage.setItem(
           'city_data_cache',
