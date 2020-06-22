@@ -5,6 +5,7 @@ import './CitySelector.css'
 import ArrowBack from '../Icons/ArrowBack'
 import CityList from './CityList'
 import { useCallback } from 'react'
+import Suggest from './Suggest'
 
 const CitySelector = memo(function ({
   show,
@@ -66,7 +67,7 @@ const CitySelector = memo(function ({
           &#xf063;
         </i>
       </div>
-
+      {Boolean(key) && <Suggest searchKey={key} onSelect={key => onSelect(key)} />}
       {outputCitySections()}
     </div>
   )
