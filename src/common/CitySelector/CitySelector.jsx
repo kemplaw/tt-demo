@@ -4,6 +4,7 @@ import classnames from 'classnames'
 import './CitySelector.css'
 import ArrowBack from '../Icons/ArrowBack'
 import CityList from './CityList'
+import { useCallback } from 'react'
 
 const CitySelector = memo(function ({
   show,
@@ -23,11 +24,15 @@ const CitySelector = memo(function ({
     fetchCityData()
   }, [show, cityData, fetchCityData, isLoading])
 
+  const toAlpha = useCallback(alpha => {
+    document.querySelector(`[data-cate=${alpha}]`).scrollIntoView()
+  }, [])
+
   const outputCitySections = () => {
     if (isLoading) return <div>loading</div>
 
     if (cityData) {
-      return <CityList sections={cityData.cityList} onSelect={onSelect} />
+      return <CityList sections={cityData.cityList} toAlpha={toAlpha} onSelect={onSelect} />
     }
 
     return <div>error</div>

@@ -2,10 +2,10 @@ import React, { memo } from 'react'
 import PropTypes from 'prop-types'
 import CityItem from './CityItem'
 
-const CitySelection = memo(function ({ title, cities = [], onSelect }) {
+const CitySection = memo(function ({ title, cities = [], onSelect }) {
   return (
     <ul className='city-ul'>
-      <li className='city-li' key='title'>
+      <li className='city-li' key='title' data-cate={title}>
         {title}
       </li>
       {cities.map(({ name }) => (
@@ -15,10 +15,10 @@ const CitySelection = memo(function ({ title, cities = [], onSelect }) {
   )
 })
 
-CitySelection.propTypes = {
+CitySection.propTypes = {
   title: PropTypes.string.isRequired,
   cities: PropTypes.array,
   onSelect: PropTypes.func.isRequired
 }
 
-export default CitySelection
+export default CitySection

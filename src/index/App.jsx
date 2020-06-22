@@ -14,7 +14,7 @@ import {
   setSelectedCity
 } from './actions'
 import { bindActionCreators } from 'redux'
-import CitySelector from '../common/CitySelector'
+import CitySelector from '../common/CitySelector/CitySelector'
 
 function App({ from, to, dispatch, isCitySelectorVisible, cityData, isLoadingCityData }) {
   // 使用 useCallback 避免每次 app 重渲染都会重新生成此函数
