@@ -11,7 +11,8 @@ import {
   exchangeFromTo,
   hideCitySelector,
   fetchCityData,
-  setSelectedCity
+  setSelectedCity,
+  showDateSelector
 } from './actions'
 import { bindActionCreators } from 'redux'
 import CitySelector from '../common/CitySelector/CitySelector'
@@ -31,6 +32,17 @@ function App({ from, to, dispatch, isCitySelectorVisible, cityData, isLoadingCit
       dispatch
     )
   }, [dispatch])
+
+  const departDateCbs = useMemo(
+    () =>
+      bindActionCreators(
+        {
+          onClick: showDateSelector
+        },
+        dispatch
+      ),
+    [dispatch]
+  )
 
   const citySelectorCbs = useMemo(
     () =>
@@ -52,7 +64,7 @@ function App({ from, to, dispatch, isCitySelectorVisible, cityData, isLoadingCit
       </div>
       <form className='form'>
         <Journey from={from} to={to} {...cbs} />
-        <DepartDate />
+        <DepartDate time={''} {...departDateCbs} />
         <HighSpeed />
         <Submit />
       </form>
