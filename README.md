@@ -849,6 +849,40 @@ function Counter() {
 
 #### 异步 Action
 
+详见 `redux-thunk` 的使用文档
+
+#### redux 的使用步骤
+
+- 在 store 中注册 redux
+
+```
+createStore(
+  combineReducers(reducers),
+  initState,
+  appMiddleware(thunk)
+)
+```
+
+- 创建 `actionTypes`
+
+- 创建 `actionCreators` 函数
+
+- 创建 reducers
+
+- 在入口文件中 使用 Provider 包裹入口组件
+
+- 在 主模块之中 使用 connect 包裹主模块组件，形成 HOC
+
+- 子组件中 redux 的使用方法：
+
+  1. 使用 bindActionCreators:
+     - 优点：子组件无需知道 redux 的存在，只需要获取 父组件传来的 props
+     - 缺点：父组件增加了复杂度
+  2. 使用 connect 包裹组件，形成 HOC
+
+     - 优点：无需在父组件之中处理数量繁多的 props
+     - 缺点：子组件与 store 形成了耦合，降低了组件的可复用性，同时容易在绑定 state 的时候，出现缺漏，例如：不需要的 state 更新导致组件在不应该被重新渲染的情况下重新渲染，造成了性能上的浪费
+
 ### PWA
 
 渐进式网络应用 Progressive Web App
@@ -982,3 +1016,11 @@ new ManifestPlugin({
   publicPath: isEnvProduction ? paths.servedPath : isEnvDevelopment && '/'
 })
 ```
+
+### package 依赖列表
+
+- classnames
+- redux
+- react-redux
+- redux-thunk
+- urijs

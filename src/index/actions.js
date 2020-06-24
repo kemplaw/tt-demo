@@ -131,7 +131,7 @@ export function fetchCityData() {
 
     dispatch(setIsLoadingCityData(true))
 
-    fetch('/api/city/getCityData?_=' + Date.now())
+    fetch('/rest/cities?_' + Date.now())
       .then(res => res.json())
       .then(({ data: cityData }) => {
         dispatch(setCityData(cityData))
