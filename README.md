@@ -833,6 +833,14 @@ function Counter() {
 
   创建一个不参与实际渲染的 state，然后在需要的时机更新它
 
+#### 何时使用 useReducer 或者 useState ？
+
+使用 useState 的情况：
+- 处理的数据是基础类型的情况下，建议使用 useState 来处理数据
+
+使用 useReducer 的情况：
+- 处理引用类型的数据，例如 复杂的 Object 或者 Array 数据
+
 ### Redux 的概念和意义
 
 状态容器和数据流管理
